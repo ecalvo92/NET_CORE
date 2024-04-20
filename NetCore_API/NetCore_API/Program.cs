@@ -21,6 +21,8 @@ app.UseHttpsRedirection();
 
 app.UseAuthorization();
 
+app.UseExceptionHandler("/api/Error/RegistrarError");
+
 app.MapControllers();
 
 app.Run();
