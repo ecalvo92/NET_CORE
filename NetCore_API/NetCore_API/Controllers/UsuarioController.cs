@@ -1,4 +1,6 @@
 ﻿using Microsoft.AspNetCore.Mvc;
+using Microsoft.EntityFrameworkCore;
+using NetCore_API.Database;
 using NetCore_API.Entities;
 
 namespace NetCore_API.Controllers
@@ -7,51 +9,62 @@ namespace NetCore_API.Controllers
     [ApiController]
     public class UsuarioController : ControllerBase
     {
-        public static List<Usuario> lista = new List<Usuario>();
+        private readonly Context _context;
+        public UsuarioController(Context context)
+        {
+            _context = context;
+        }
 
         [HttpGet]
         [Route("ConsultarUsuarios")]
-        public IActionResult ConsultarUsuarios()
+        public async Task<IActionResult> ConsultarUsuarios()
         {
-            return Ok(lista);
+            var datos = await _context.tUsuario.ToListAsync();
+            return Ok(datos);
         }
 
         [HttpGet]
         [Route("ConsultarUsuario")]
-        public IActionResult ConsultarUsuario(int Id)
+        public async Task<IActionResult> ConsultarUsuario(int Id)
         {
-            var resultado = lista.Where(x => x.Id == Id).FirstOrDefault();
-            return Ok(resultado);
+            var dato = await _context.tUsuario.Where(x => x.Id == Id).FirstOrDefaultAsync();
+            return Ok(dato);
         }
 
         [HttpPost]
         [Route("AgregarUsuario")]
-        public IActionResult AgregarUsuario(Usuario Entidad)
+        public async Task<IActionResult> AgregarUsuario(Usuario Entidad)
         {
-            lista.Add(Entidad);
-            return Ok(lista);
+            _context.tUsuario.Add(Entidad);
+            await _context.SaveChangesAsync();
+
+            var datos = await _context.tUsuario.ToListAsync();
+            return Ok(datos);
         }
 
         [HttpPut]
         [Route("ActualizarUsuario")]
-        public IActionResult ActualizarUsuario(Usuario Entidad)
+        public async Task<IActionResult> ActualizarUsuario(Usuario Entidad)
         {
-            foreach (var item in lista.Where(x => x.Id == Entidad.Id))
-            {
-                item.Nombre = Entidad.Nombre;
-                item.Estado = Entidad.Estado;
-            }
+            var dato = await _context.tUsuario.Where(x => x.Id == Entidad.Id).FirstOrDefaultAsync();
+            dato!.Nombre = Entidad.Nombre;
+            dato!.Estado = Entidad.Estado;
+            await _context.SaveChangesAsync();
 
-            return Ok(lista);
+            var datos = await _context.tUsuario.ToListAsync();
+            return Ok(datos);
         }
 
         [HttpDelete]
         [Route("EliminarUsuario")]
-        public IActionResult EliminarUsuario(int Id)
+        public async Task<IActionResult> EliminarUsuario(int Id)
         {
-            var resultado = lista.Where(x => x.Id == Id).FirstOrDefault();
-            lista.Remove(resultado!);
-            return Ok(lista);
+            var dato = await _context.tUsuario.Where(x => x.Id == Id).FirstOrDefaultAsync();
+            _context.tUsuario.Remove(dato!);
+            await _context.SaveChangesAsync();
+
+            var datos = await _context.tUsuario.ToListAsync();
+            return Ok(datos);
         }
 
     }

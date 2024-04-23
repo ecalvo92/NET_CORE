@@ -1,4 +1,15 @@
+using NetCore_API.Database;
+using Microsoft.EntityFrameworkCore;
+
 var builder = WebApplication.CreateBuilder(args);
+
+var config = builder.Configuration;
+string connectionString = config["ConnectionStrings:DefaultConnection"]!.ToString();
+
+builder.Services.AddDbContext<Context>(opt =>
+{
+    opt.UseSqlServer(connectionString);
+});
 
 builder.Services.AddControllers().
     AddJsonOptions(opt => {
