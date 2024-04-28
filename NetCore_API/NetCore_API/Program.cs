@@ -6,9 +6,11 @@ var builder = WebApplication.CreateBuilder(args);
 var config = builder.Configuration;
 string connectionString = config["ConnectionStrings:DefaultConnection"]!.ToString();
 
+Environment.SetEnvironmentVariable("SQLCONNSTR_DefaultConnection", connectionString);
+
 builder.Services.AddDbContext<Context>(opt =>
 {
-    opt.UseSqlServer(connectionString);
+    opt.UseSqlServer(Environment.GetEnvironmentVariable("SQLCONNSTR_DefaultConnection")!.ToString());
 });
 
 builder.Services.AddControllers().
@@ -22,7 +24,7 @@ builder.Services.AddSwaggerGen();
 
 var app = builder.Build();
 
-if (app.Environment.IsDevelopment())
+if (!app.Environment.IsProduction())
 {
     app.UseSwagger();
     app.UseSwaggerUI();
